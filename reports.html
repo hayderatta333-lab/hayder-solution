@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Reports - {{ app_name }}{% endblock %}
+{% block content %}
+<h3 class="mb-4">Reports &amp; Analytics</h3>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card bg-success">
+      <i class="fa-solid fa-sack-dollar"></i>
+      <div class="stat-num">Rs {{ "%.0f"|format(total_pipeline_value) }}</div>
+      <div class="stat-label">Open Pipeline Value</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card"><div class="card-header fw-bold">Deals by Stage</div>
+      <div class="card-body"><canvas id="stageChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header fw-bold">Value by Stage</div>
+      <div class="card-body"><canvas id="valueChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-header fw-bold">New Contacts per Month</div>
+      <div class="card-body"><canvas id="contactChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const stageLabels = {{ stage_labels|safe }};
+const stageCounts = {{ stage_counts|safe }};
+const valueLabels = {{ value_labels|safe }};
+const valueTotals = {{ value_totals|safe }};
+const contactLabels = {{ contact_labels|safe }};
+const contactCounts = {{ contact_counts|safe }};
+
+new Chart(document.getElementById('stageChart'), {
+  type: 'pie',
+  data: { labels: stageLabels, datasets: [{ data: stageCounts,
+    backgroundColor: ['#6366f1','#f59e0b','#0ea5e9','#a855f7','#22c55e','#ef4444'] }] }
+});
+
+new Chart(document.getElementById('valueChart'), {
+  type: 'bar',
+  data: { labels: valueLabels, datasets: [{ label: 'Value (Rs)', data: valueTotals, backgroundColor: '#6366f1' }] },
+  options: { plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('contactChart'), {
+  type: 'line',
+  data: { labels: contactLabels, datasets: [{ label: 'New Contacts', data: contactCounts, borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,.2)', fill: true, tension: 0.3 }] }
+});
+</script>
+{% endblock %}

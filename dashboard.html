@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - {{ app_name }}{% endblock %}
+{% block content %}
+<h3 class="mb-4">Dashboard</h3>
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-6">
+    <div class="stat-card bg-primary">
+      <i class="fa-solid fa-address-book"></i>
+      <div class="stat-num">{{ total_contacts }}</div>
+      <div class="stat-label">Total Contacts</div>
+    </div>
+  </div>
+  <div class="col-md-3 col-6">
+    <div class="stat-card bg-info">
+      <i class="fa-solid fa-handshake"></i>
+      <div class="stat-num">{{ total_deals }}</div>
+      <div class="stat-label">Total Deals</div>
+    </div>
+  </div>
+  <div class="col-md-3 col-6">
+    <div class="stat-card bg-warning">
+      <i class="fa-solid fa-sack-dollar"></i>
+      <div class="stat-num">Rs {{ "%.0f"|format(pipeline_value) }}</div>
+      <div class="stat-label">Open Pipeline Value</div>
+    </div>
+  </div>
+  <div class="col-md-3 col-6">
+    <div class="stat-card bg-success">
+      <i class="fa-solid fa-trophy"></i>
+      <div class="stat-num">Rs {{ "%.0f"|format(won_value) }}</div>
+      <div class="stat-label">Won Value</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header fw-bold">Recent Activity</div>
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead><tr><th>Contact</th><th>Type</th><th>Note</th><th>When</th></tr></thead>
+      <tbody>
+        {% for a in recent_activities %}
+        <tr>
+          <td><a href="{{ url_for('contact_detail', cid=a.contact_id) }}">{{ a.contact_name }}</a></td>
+          <td><span class="badge bg-secondary">{{ a.type }}</span></td>
+          <td>{{ a.content }}</td>
+          <td class="text-muted small">{{ a.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-3">Koi activity nahi hai</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

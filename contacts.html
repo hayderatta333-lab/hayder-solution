@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Contacts - {{ app_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Contacts</h3>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContactModal"><i class="fa-solid fa-plus"></i> Add Contact</button>
+</div>
+
+<form class="mb-3" method="GET">
+  <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Naam, company ya phone se search karein...">
+</form>
+
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead><tr><th>ID</th><th>Naam</th><th>Company</th><th>Phone</th><th>Email</th><th>Source</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for c in contacts %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td><a href="{{ url_for('contact_detail', cid=c.id) }}">{{ c.name }}</a></td>
+          <td>{{ c.company }}</td>
+          <td>{{ c.phone }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.source }}</td>
+          <td>
+            <a href="{{ url_for('contact_detail', cid=c.id) }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-eye"></i></a>
+            <form method="POST" action="{{ url_for('delete_contact', cid=c.id) }}" class="d-inline" onsubmit="return confirm('Delete karein?');">
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-3">Koi contact nahi mila</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="addContactModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title">Naya Contact Add Karein</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Naam</label><input class="form-control" name="name" required></div>
+          <div class="mb-2"><label class="form-label">Company</label><input class="form-control" name="company"></div>
+          <div class="mb-2"><label class="form-label">Phone</label><input class="form-control" name="phone" placeholder="+92xxxxxxxxxx"></div>
+          <div class="mb-2"><label class="form-label">Email</label><input class="form-control" type="email" name="email"></div>
+          <div class="mb-2"><label class="form-label">Source</label>
+            <select class="form-control" name="source">
+              <option>Website</option><option>WhatsApp</option><option>Referral</option><option>Cold Call</option><option>Other</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Notes</label><textarea class="form-control" name="notes"></textarea></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

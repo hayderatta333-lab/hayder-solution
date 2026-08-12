@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ contact.name }} - {{ app_name }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('contacts') }}" class="text-decoration-none">&larr; Contacts</a>
+<h3 class="mt-2">{{ contact.name }}</h3>
+<p class="text-muted">{{ contact.company }} &middot; {{ contact.phone }} &middot; {{ contact.email }}</p>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Deals</span>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addDealModal"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead><tr><th>Title</th><th>Value</th><th>Stage</th></tr></thead>
+          <tbody>
+            {% for d in deals %}
+            <tr>
+              <td>{{ d.title }}</td>
+              <td>Rs {{ "%.0f"|format(d.value) }}</td>
+              <td><span class="badge bg-info">{{ d.stage }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="text-center text-muted py-3">Koi deal nahi hai</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header fw-bold">Activity Log</div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('add_activity', cid=contact.id) }}" class="mb-3">
+          <div class="input-group mb-2">
+            <select class="form-select" name="type" style="max-width:120px;">
+              <option value="note">Note</option>
+              <option value="call">Call</option>
+              <option value="email">Email</option>
+              <option value="meeting">Meeting</option>
+            </select>
+            <input class="form-control" name="content" placeholder="Kya hua..." required>
+            <button class="btn btn-primary"><i class="fa-solid fa-plus"></i></button>
+          </div>
+        </form>
+        <div style="max-height: 320px; overflow-y: auto;">
+          {% for a in activities %}
+          <div class="border-bottom py-2">
+            <span class="badge bg-secondary">{{ a.type }}</span>
+            <span>{{ a.content }}</span>
+            <div class="text-muted small">{{ a.created_at }}</div>
+          </div>
+          {% else %}
+          <p class="text-muted text-center py-3">Koi activity nahi hai</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addDealModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('add_deal', cid=contact.id) }}">
+        <div class="modal-header">
+          <h5 class="modal-title">Naya Deal Add Karein</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Deal Title</label><input class="form-control" name="title" required></div>
+          <div class="mb-2"><label class="form-label">Value (Rs)</label><input class="form-control" type="number" step="0.01" name="value"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
