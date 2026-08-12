@@ -1,51 +1,53 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}{{ app_name }}{% endblock %}</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-<link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+<title>{% block title %}Hayder Solution{% endblock %} | Hayder Solution CRM</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-{% if session.user_id %}
-<nav class="navbar navbar-expand-lg navbar-dark hs-navbar">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-diagram-project"></i> {{ app_name }}</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="nav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('contacts') }}"><i class="fa-solid fa-address-book"></i> Contacts</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('pipeline') }}"><i class="fa-solid fa-diagram-project"></i> Pipeline</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('reports') }}"><i class="fa-solid fa-chart-line"></i> Reports</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('ai_settings_page') }}"><i class="fa-solid fa-robot"></i> AI Agent</a></li>
-      </ul>
-      <span class="navbar-text text-white-50 me-3">{{ session.username }}</span>
-      <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-    </div>
-  </div>
-</nav>
-{% endif %}
-
-<div class="container py-4">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+{% if session.get('user_id') %}
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark">H</span>
+            <span class="brand-name">Hayder Solution</span>
         </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-
-  {% block content %}{% endblock %}
+        <nav class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">Dashboard</a>
+            <a href="{{ url_for('contacts') }}" class="{{ 'active' if request.endpoint in ['contacts','contact_new','contact_detail'] }}">Contacts</a>
+            <a href="{{ url_for('companies') }}" class="{{ 'active' if request.endpoint in ['companies','company_new','company_detail'] }}">Companies</a>
+            <a href="{{ url_for('deals') }}" class="{{ 'active' if request.endpoint in ['deals','deal_detail'] }}">Deals Pipeline</a>
+            <a href="{{ url_for('activities') }}" class="{{ 'active' if request.endpoint=='activities' }}">Activities</a>
+            <a href="{{ url_for('reminders') }}" class="{{ 'active' if request.endpoint=='reminders' }}">
+                Reminders {% if reminder_count %}<span class="nav-badge">{{ reminder_count }}</span>{% endif %}
+            </a>
+            <a href="{{ url_for('reports') }}" class="{{ 'active' if request.endpoint=='reports' }}">Reports</a>
+            {% if current_role == 'admin' %}
+            <a href="{{ url_for('users') }}" class="{{ 'active' if request.endpoint in ['users','user_new'] }}">Users</a>
+            {% endif %}
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-chip">{{ current_user }}</div>
+            <a href="{{ url_for('logout') }}" class="logout-link">Log out</a>
+        </div>
+    </aside>
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% else %}
+    {% block auth_content %}{% endblock %}
+{% endif %}
 </body>
 </html>
