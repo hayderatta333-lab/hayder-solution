@@ -1,56 +1,76 @@
 {% extends "base.html" %}
-{% block title %}Dashboard - {{ app_name }}{% endblock %}
+{% block title %}Dashboard{% endblock %}
 {% block content %}
-<h3 class="mb-4">Dashboard</h3>
-<div class="row g-3 mb-4">
-  <div class="col-md-3 col-6">
-    <div class="stat-card bg-primary">
-      <i class="fa-solid fa-address-book"></i>
-      <div class="stat-num">{{ total_contacts }}</div>
-      <div class="stat-label">Total Contacts</div>
-    </div>
-  </div>
-  <div class="col-md-3 col-6">
-    <div class="stat-card bg-info">
-      <i class="fa-solid fa-handshake"></i>
-      <div class="stat-num">{{ total_deals }}</div>
-      <div class="stat-label">Total Deals</div>
-    </div>
-  </div>
-  <div class="col-md-3 col-6">
-    <div class="stat-card bg-warning">
-      <i class="fa-solid fa-sack-dollar"></i>
-      <div class="stat-num">Rs {{ "%.0f"|format(pipeline_value) }}</div>
-      <div class="stat-label">Open Pipeline Value</div>
-    </div>
-  </div>
-  <div class="col-md-3 col-6">
-    <div class="stat-card bg-success">
-      <i class="fa-solid fa-trophy"></i>
-      <div class="stat-num">Rs {{ "%.0f"|format(won_value) }}</div>
-      <div class="stat-label">Won Value</div>
-    </div>
-  </div>
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Welcome back, {{ current_user }}</p>
 </div>
 
-<div class="card">
-  <div class="card-header fw-bold">Recent Activity</div>
-  <div class="card-body p-0">
-    <table class="table mb-0">
-      <thead><tr><th>Contact</th><th>Type</th><th>Note</th><th>When</th></tr></thead>
-      <tbody>
-        {% for a in recent_activities %}
-        <tr>
-          <td><a href="{{ url_for('contact_detail', cid=a.contact_id) }}">{{ a.contact_name }}</a></td>
-          <td><span class="badge bg-secondary">{{ a.type }}</span></td>
-          <td>{{ a.content }}</td>
-          <td class="text-muted small">{{ a.created_at }}</td>
-        </tr>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Contacts</div>
+        <div class="stat-value">{{ total_contacts }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Open Deals</div>
+        <div class="stat-value">{{ open_deals }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Pipeline Value</div>
+        <div class="stat-value">${{ '{:,.0f}'.format(pipeline_value) }}</div>
+    </div>
+    <div class="stat-card accent">
+        <div class="stat-label">Won Revenue</div>
+        <div class="stat-value">${{ '{:,.0f}'.format(won_value) }}</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="panel">
+        <h2>Pipeline by Stage</h2>
+        <div class="stage-bars">
+            {% for s in deals_by_stage %}
+            <div class="stage-bar-row">
+                <span class="stage-dot" style="background:{{ s.color }}"></span>
+                <span class="stage-bar-label">{{ s.stage }}</span>
+                <span class="stage-bar-count">{{ s.cnt }} deal(s) &middot; ${{ '{:,.0f}'.format(s.val) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Upcoming Tasks</h2>
+        {% if upcoming_tasks %}
+        <ul class="simple-list">
+            {% for t in upcoming_tasks %}
+            <li>
+                <strong>{{ t.subject }}</strong>
+                <span class="muted">{{ t.type }} {% if t.first_name %}&middot; {{ t.first_name }} {{ t.last_name }}{% endif %}</span>
+                {% if t.due_date %}<span class="due">{{ t.due_date }}</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-        <tr><td colspan="4" class="text-center text-muted py-3">Koi activity nahi hai</td></tr>
+        <p class="muted">No upcoming tasks.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="panel">
+    <h2>Recent Activity</h2>
+    {% if recent_activities %}
+    <ul class="simple-list">
+        {% for a in recent_activities %}
+        <li>
+            <strong>{{ a.subject }}</strong>
+            <span class="muted">{{ a.type }} {% if a.first_name %}&middot; {{ a.first_name }} {{ a.last_name }}{% endif %}</span>
+            <span class="due">{{ a.created_at }}</span>
+        </li>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </ul>
+    {% else %}
+    <p class="muted">No recent activity yet.</p>
+    {% endif %}
 </div>
 {% endblock %}
