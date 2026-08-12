@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Tasks</h1>
+    <button class="btn btn-primary" onclick="document.getElementById('new-task-modal').classList.add('open')">+ New Task</button>
+</div>
+
+<div class="panel">
+<table class="data-table">
+    <thead>
+        <tr><th>Status</th><th>Title</th><th>Contact</th><th>Assigned To</th><th>Priority</th><th>Due Date</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for t in tasks %}
+        <tr class="{{ 'row-done' if t.status == 'completed' }}">
+            <td>
+                <form method="POST" action="{{ url_for('task_toggle', task_id=t.id) }}">
+                    <button type="submit" class="btn-link">{{ 'Done' if t.status == 'completed' else 'Mark Done' }}</button>
+                </form>
+            </td>
+            <td><strong>{{ t.title }}</strong>{% if t.description %}<br><span class="muted">{{ t.description }}</span>{% endif %}</td>
+            <td>{% if t.first_name %}{{ t.first_name }} {{ t.last_name }}{% else %}-{% endif %}</td>
+            <td>{{ t.assigned_name or '-' }}</td>
+            <td><span class="badge {{ 'badge-success' if t.priority=='low' else '' }}">{{ t.priority }}</span></td>
+            <td>{{ t.due_date or '-' }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('task_delete', task_id=t.id) }}" onsubmit="return confirm('Delete this task?');">
+                    <button type="submit" class="btn-link danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="muted">No tasks yet. You're all caught up!</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<div id="new-task-modal" class="modal">
+    <div class="modal-box">
+        <h2>New Task</h2>
+        <form method="POST" action="{{ url_for('task_new') }}" class="stacked-form">
+            <label>Title *</label>
+            <input type="text" name="title" required>
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
+            <label>Related Contact</label>
+            <select name="contact_id">
+                <option value="">-- None --</option>
+                {% for c in contacts %}
+                <option value="{{ c.id }}">{{ c.first_name }} {{ c.last_name }}</option>
+                {% endfor %}
+            </select>
+            <label>Assign To</label>
+            <select name="assigned_to">
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.name }}</option>
+                {% endfor %}
+            </select>
+            <label>Priority</label>
+            <select name="priority">
+                <option value="low">Low</option>
+                <option value="normal" selected>Normal</option>
+                <option value="high">High</option>
+            </select>
+            <label>Due Date</label>
+            <input type="datetime-local" name="due_date">
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('new-task-modal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
